@@ -1,6 +1,7 @@
 from sqlalchemy import Engine, create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 
+from ..settings import DB_CONN
 from .models import Base
 
 
@@ -17,3 +18,20 @@ def create_db(db_conn: str, drop_first=False) -> Engine:
         Base.metadata.create_all(conn, checkfirst=True)
         conn.commit()
     return engine
+
+
+def get_db(echo_sql: bool = False):
+    db_url = DB_CONN
+    engine = create_engine(
+        db_url,
+        connect_args={"check_same_thread": False}
+        if db_url.startswith("sqlite")
+        else {},
+        echo=echo_sql,
+    )
+    SessionLocal = sessionmaker(bind=engine)
+    db: Session = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

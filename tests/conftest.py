@@ -1,12 +1,17 @@
+# ruff: noqa: E402
+# Must set env var now
+import os
+
+DB_CONN = "sqlite:///energy_test.db"
+os.environ["DB_CONN"] = DB_CONN
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from energy_manager.app import create_app
+from energy_manager.app import app as fast_api_app
 from energy_manager.db.connection import create_db
 from energy_manager.db.insert_sample_data import insert_data
-
-DB_CONN = "sqlite:///energy_test.db"
 
 
 @pytest.fixture(scope="session")
@@ -20,5 +25,4 @@ def db_session():
 
 @pytest.fixture(scope="session")
 def client(db_session):
-    app = create_app(db_session=db_session, is_debug=False)
-    yield TestClient(app)
+    yield TestClient(fast_api_app)

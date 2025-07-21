@@ -27,5 +27,5 @@ def test_get_sites(client, user_id, site_count):
 )
 def test_get_site(client, site_id, user_id, status_code):
     headers = {"X-User-ID": str(user_id)}
-    response = client.get(f"/site/{site_id}", headers=headers)
+    response = client.get(f"/sites/{site_id}", headers=headers)
     assert response.status_code == status_code

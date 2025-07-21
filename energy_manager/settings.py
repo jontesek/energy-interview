@@ -1,7 +1,7 @@
 import os
 
 # Database
-DB_CONN = "sqlite:///energy.db"
+DB_CONN = os.getenv("DB_CONN", "sqlite:///energy.db")
 # Runtime
 ENVIRONMENT = os.getenv("ENVIRONMENT", "local")
 # Helpers
