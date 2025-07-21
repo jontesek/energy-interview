@@ -27,4 +27,7 @@ __pypackages__/
 .ruff_cache/
 
 # Database
-db.sqlite
+energy.db
+
+# notes
+notes.txt
