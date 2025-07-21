@@ -9,8 +9,10 @@ def get_db_session(db_conn: str, echo_sql: bool = False) -> Session:
     return Session(engine)
 
 
-def create_db(db_conn: str):
+def create_db(db_conn: str, drop_first=False):
     engine = create_engine(db_conn)
     with engine.connect() as conn:
+        if drop_first:
+            Base.metadata.drop_all(conn)
         Base.metadata.create_all(conn, checkfirst=True)
         conn.commit()

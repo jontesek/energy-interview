@@ -2,7 +2,9 @@
 
 ## Usage
 
-### Docker
+Please first insert sample data to DB with this command:
+
+`uv run -m energy_manager.db.insert_sample_data`
 
 ### Venv
 
@@ -28,3 +30,4 @@ You can also run the hooks manually for all files with `pre-commit run --all-fil
 * Add `device_type` table, so we have general device types.
 * Add `relationship()` to SQL models (but honestly I don't like it).
 * Add `device_metric` table, so we can have general metric types in `metric` table.
+* Instead of `X-User-ID` header use JWT token with `user_id` encrypted in it.

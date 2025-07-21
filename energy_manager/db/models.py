@@ -1,6 +1,7 @@
 import datetime
+from enum import StrEnum
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -15,7 +16,7 @@ class Site(Base):
     address: Mapped[str]
     name: Mapped[str]
     description: Mapped[str | None]
-    created_at: Mapped[datetime.datetime]
+    created_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now())
 
 
 class Device(Base):
@@ -25,7 +26,7 @@ class Device(Base):
     site_id: Mapped[int] = mapped_column(ForeignKey("site.id"))
     name: Mapped[str]
     description: Mapped[str | None]
-    created_at: Mapped[datetime.datetime]
+    created_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now())
 
 
 class Metric(Base):
@@ -36,7 +37,7 @@ class Metric(Base):
     name: Mapped[str]
     unit: Mapped[str]
     description: Mapped[str | None]
-    created_at: Mapped[datetime.datetime]
+    created_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now())
 
 
 class MetricValue(Base):
@@ -54,7 +55,7 @@ class User(Base):
     name: Mapped[str]
     username: Mapped[str]
     password: Mapped[str]
-    created_at: Mapped[datetime.datetime]
+    created_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now())
 
 
 class SiteUser(Base):
@@ -63,7 +64,7 @@ class SiteUser(Base):
     site_id: Mapped[int] = mapped_column(ForeignKey("site.id"), primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), primary_key=True)
     role: Mapped[str]
-    assigned_at: Mapped[datetime.datetime]
+    assigned_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now())
 
 
 class Subscription(Base):
@@ -73,7 +74,7 @@ class Subscription(Base):
     name: Mapped[str]
     description: Mapped[str | None]
     created_by_user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
-    created_at: Mapped[datetime.datetime]
+    created_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now())
 
 
 class SubscriptionMetric(Base):
@@ -83,3 +84,9 @@ class SubscriptionMetric(Base):
         ForeignKey("subscription.id"), primary_key=True
     )
     metric_id: Mapped[int] = mapped_column(ForeignKey("metric.id"), primary_key=True)
+
+
+# Helping
+class UserRole(StrEnum):
+    BASIC = "basic"
+    TECH = "technician"
