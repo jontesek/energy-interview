@@ -6,6 +6,8 @@ Please first insert sample data to DB with this command:
 
 `uv run -m energy_manager.db.insert_sample_data`
 
+You can run tests with `uv run pytest`. Tests use local SQLite DB file named `energy_test.db` which is recreated on each run with sample data.
+
 ### Venv
 
 I used [uv](https://docs.astral.sh/uv/) package manager to handle dependencies.

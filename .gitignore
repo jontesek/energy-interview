@@ -28,6 +28,7 @@ __pypackages__/
 
 # Database
 energy.db
+energy_test.db
 
 # notes
 notes.txt
