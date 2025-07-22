@@ -1,7 +1,7 @@
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from ..settings import DB_CONN
+from ..settings import DB_CONN, ECHO_SQL
 from .models import Base
 
 
@@ -20,8 +20,11 @@ def create_db(db_conn: str, drop_first=False) -> Engine:
     return engine
 
 
-def get_db(echo_sql: bool = False):
+# Generator for FastAPI dependency
+def get_db():
+    # Create engine
     db_url = DB_CONN
+    echo_sql = bool(ECHO_SQL)
     engine = create_engine(
         db_url,
         connect_args={"check_same_thread": False}
@@ -29,6 +32,7 @@ def get_db(echo_sql: bool = False):
         else {},
         echo=echo_sql,
     )
+    # Create session and close it after use
     SessionLocal = sessionmaker(bind=engine)
     db: Session = SessionLocal()
     try:
