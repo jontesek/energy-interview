@@ -19,7 +19,7 @@ app = FastAPI(
 )
 logger.debug("FastAPI app created")
 
-# Add routes
+# Add API routes
 app.include_router(sites.router)
 app.include_router(devices.router)
 app.include_router(metrics.router)

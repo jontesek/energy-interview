@@ -4,7 +4,7 @@
 
 Run `docker-compose up` - it should work! The API will be accessible at http://127.0.0.1:8000. See API documentation at http://127.0.0.1:8000/docs 
 
-**Note**: You must include `X-User-ID` header in most requests (not for `/metrics`). Payload format is mentioned in the docs (Endpoint > Request body).
+**Note**: You must include `X-User-ID` header in most requests (apart from `/metrics`). Payload format is mentioned in the docs (Endpoint > Request body).
 
 **Insert sample data** with: `docker-compose run app uv run -m energy_manager.db.insert_sample_data`
 
@@ -38,7 +38,13 @@ I used SQLite for easier development and debugging. I used FastAPI because I wor
 
 I used [Repository](./energy_manager/db/repositories.py) class for DB access and main logic. This way, API routers don't contain too much code and I can use some common code (e.g. for user access).
 
-I added a lot of tests to properly test the API. When testing create and update, I checked only API response, not data in DB. But since I tried it also manually before and it works (data is added), should be fine.
+I added a lot of tests to properly test the API. I added a separate test for user access method to make sure it works properly. When testing create and update, I checked only API response, not data in DB. But since I tried it also manually before and it works (data is added), should be fine.
+
+Access rights are based on two roles: `basic` and `tech`.
+
+I used mostly positional arguments in method calls. Although keyword arguments are safer and future-proof, I tried this bold move this time, because it's not for production and I don't like repeating words :D.
+
+I didn't write any docstrings...but hopefully code is still easy to understand!
 
 ERD for database:
 
