@@ -17,3 +17,17 @@ def test_latest_metric_value(client, metric_id, expected_value, status_code):
     resp_json = response.json()
     value = None if resp_json is None else resp_json.get("value")
     assert value == expected_value
+
+
+@pytest.mark.parametrize(
+    "payload, status_code",
+    [
+        ({"name": "Wind turbine", "metric_ids": [4, 5, 6]}, 200),
+        ({"name": "Wind turbine", "metric_ids": [4, 5, 666]}, 404),
+        ({"name": "Wind turbine", "metric_ids": []}, 422),
+    ],
+)
+def test_create_subscription(client, payload, status_code):
+    headers = {"X-User-ID": "1"}
+    response = client.post("/metrics/subscriptions", headers=headers, json=payload)
+    assert response.status_code == status_code

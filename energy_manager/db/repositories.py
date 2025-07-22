@@ -1,8 +1,21 @@
 from sqlalchemy.orm import Session
 
 from ..api.schemas.devices import DeviceCreate, DeviceUpdate
-from ..api.schemas.metrics import MetricValueResponse
-from .models import Device, Metric, MetricValue, Site, SiteUser, UserRole
+from ..api.schemas.metrics import (
+    MetricValueResponse,
+    SubscriptionCreate,
+    SubscriptionCreateResponse,
+)
+from .models import (
+    Device,
+    Metric,
+    MetricValue,
+    Site,
+    SiteUser,
+    Subscription,
+    SubscriptionMetric,
+    UserRole,
+)
 
 
 class Repository:
@@ -122,6 +135,33 @@ class Repository:
             measured_at=latest_value.measured_at,
         )
 
+    def create_subscription(
+        self, payload: SubscriptionCreate
+    ) -> SubscriptionCreateResponse:
+        # Check if all supplied metrics exist
+        metric_ids = payload.metric_ids
+        if not metric_ids:
+            raise ValueError("metric_ids must not be empty")
+        metrics = self.db.query(Metric).filter(Metric.id.in_(metric_ids)).all()
+        if len(metric_ids) != len(metrics):
+            raise EntityNotFoundError("Metric", None)
+        # Create subscription
+        subscription = Subscription(
+            name=payload.name,
+            description=payload.description,
+            created_by_user_id=self.user_id,
+        )
+        self.db.add(subscription)
+        self.db.flush()
+        # Create subscription metrics
+        for metric_id in metric_ids:
+            met_subs = SubscriptionMetric(
+                subscription_id=subscription.id, metric_id=metric_id
+            )
+            self.db.add(met_subs)
+        # All good
+        return SubscriptionCreateResponse(id=subscription.id)
+
 
 class UnauthorizedError(Exception):
     def __init__(self, site_id: int, user_id: int) -> None:
@@ -129,5 +169,5 @@ class UnauthorizedError(Exception):
 
 
 class EntityNotFoundError(Exception):
-    def __init__(self, name: str, id: int) -> None:
+    def __init__(self, name: str, id: int | None) -> None:
         super().__init__(f"Entity {name} with ID {id} not found.")

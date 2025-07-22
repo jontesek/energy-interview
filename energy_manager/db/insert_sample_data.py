@@ -3,7 +3,16 @@ import datetime
 
 from ..settings import DB_CONN
 from .connection import create_db, get_db_session
-from .models import Device, Metric, MetricValue, Site, SiteUser, User
+from .models import (
+    Device,
+    Metric,
+    MetricValue,
+    Site,
+    SiteUser,
+    Subscription,
+    SubscriptionMetric,
+    User,
+)
 
 
 def insert_data(db_session):
@@ -115,6 +124,23 @@ def insert_data(db_session):
         ),
     ]
     db_session.add_all(metric_values)
+    # Subscriptions
+    subscriptions = [
+        Subscription(name="Wind turbine", created_by_user_id=1),
+        Subscription(name="PV plant", created_by_user_id=1),
+    ]
+    db_session.add_all(subscriptions)
+    # Subscription metrics
+    subs_metrics = [
+        # Subscription 1
+        SubscriptionMetric(subscription_id=1, metric_id=4),
+        SubscriptionMetric(subscription_id=1, metric_id=5),
+        SubscriptionMetric(subscription_id=1, metric_id=6),
+        # Subscription 2
+        SubscriptionMetric(subscription_id=2, metric_id=2),
+        SubscriptionMetric(subscription_id=2, metric_id=3),
+    ]
+    db_session.add_all(subs_metrics)
 
     # Permanently save to DB
     db_session.commit()

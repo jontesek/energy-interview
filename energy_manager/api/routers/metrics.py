@@ -1,9 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlalchemy.orm import Session
 
 from ...db.connection import get_db
 from ...db.repositories import EntityNotFoundError, Repository
-from ..schemas.metrics import MetricValueResponse
+from ..schemas.metrics import (
+    MetricValueResponse,
+    SubscriptionCreate,
+    SubscriptionCreateResponse,
+)
 
 router = APIRouter(prefix="/metrics", tags=["metrics"])
 
@@ -18,3 +22,24 @@ def get_latest_metric_value(metric_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail=str(e)) from e
 
     return metric_value
+
+
+@router.post("/subscriptions", response_model=SubscriptionCreateResponse)
+def create_subscription(
+    payload: SubscriptionCreate,
+    user_id: int = Header(alias="X-User-ID"),
+    db: Session = Depends(get_db),
+):
+    repo = Repository(db, user_id=user_id)
+
+    try:
+        response = repo.create_subscription(payload)
+    except EntityNotFoundError as e:
+        raise HTTPException(
+            status_code=404, detail="Some metric(s) you provided don't exist in DB."
+        ) from e
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
+
+    db.commit()
+    return response
