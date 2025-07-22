@@ -1,3 +1,6 @@
+import datetime
+
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..api.schemas.devices import DeviceCreate, DeviceUpdate
@@ -161,6 +164,20 @@ class Repository:
             self.db.add(met_subs)
         # All good
         return SubscriptionCreateResponse(id=subscription.id)
+
+    def get_metric_history(
+        self, metric_id: int, start_dt: datetime.datetime, end_dt: datetime.datetime
+    ) -> list[float]:
+        metric = self.db.get(Metric, metric_id)
+        if metric is None:
+            raise EntityNotFoundError("Metric", metric_id)
+        stmt = (
+            select(MetricValue.value)
+            .where(MetricValue.metric_id == metric_id)
+            .where(MetricValue.measured_at.between(start_dt, end_dt))
+        )
+        values = self.db.execute(stmt).scalars().all()
+        return list(values)
 
 
 class UnauthorizedError(Exception):
