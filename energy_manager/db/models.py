@@ -26,6 +26,7 @@ class Device(Base):
     site_id: Mapped[int] = mapped_column(ForeignKey("site.id"))
     name: Mapped[str]
     description: Mapped[str | None]
+    created_by_user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now())
 
 
@@ -89,4 +90,4 @@ class SubscriptionMetric(Base):
 # Helping
 class UserRole(StrEnum):
     BASIC = "basic"
-    TECH = "technician"
+    TECH = "tech"

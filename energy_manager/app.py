@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from .api.routers import sites
+from .api.routers import devices, sites
 from .db.connection import create_db
 from .logs import get_logger
 from .settings import DB_CONN, IS_LOCAL
@@ -21,5 +21,12 @@ logger.debug("FastAPI app created")
 
 # Add routes
 app.include_router(sites.router)
+app.include_router(devices.router)
 
 logger.debug("FastAPI routers added")
+
+# For local debugging
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="127.0.0.1", port=8000)

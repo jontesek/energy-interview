@@ -14,7 +14,7 @@ from energy_manager.db.connection import create_db
 from energy_manager.db.insert_sample_data import insert_data
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def db_session():
     db_engine = create_db(db_conn=DB_CONN, drop_first=True)
     db_session = Session(db_engine)
@@ -23,6 +23,6 @@ def db_session():
     db_session.close()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def client(db_session):
     yield TestClient(fast_api_app)

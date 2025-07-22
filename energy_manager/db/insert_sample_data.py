@@ -1,7 +1,7 @@
 # ruff: noqa: S106
 from ..settings import DB_CONN
 from .connection import create_db, get_db_session
-from .models import Site, SiteUser, User
+from .models import Device, Site, SiteUser, User
 
 
 def insert_data(db_session):
@@ -19,18 +19,28 @@ def insert_data(db_session):
         User(name="Josef Novák", username="josef.novak", password="abcd"),
         User(name="Pavel Benda", username="pavel.benda", password="abcd"),
         User(name="Tomáš Sokol", username="tomas.sokol", password="abcd"),
+        User(name="Alena Zámecká", username="alena.zamecka", password="abcd"),
     ]
     db_session.add_all(users)
     # SiteUsers
     site_users = [
         SiteUser(site_id=1, user_id=1, role="tech"),
-        SiteUser(site_id=1, user_id=2, role="basic"),
+        SiteUser(site_id=1, user_id=2, role="tech"),
         SiteUser(site_id=2, user_id=2, role="tech"),
         SiteUser(site_id=2, user_id=3, role="basic"),
+        SiteUser(site_id=3, user_id=4, role="basic"),
     ]
     db_session.add_all(site_users)
     # Make objects available
     db_session.flush()
+    # Devices
+    devices = [
+        Device(site_id=1, name="battery", created_by_user_id=1),
+        Device(site_id=1, name="pv panel", created_by_user_id=1),
+        Device(site_id=2, name="battery", created_by_user_id=1),
+        Device(site_id=2, name="wind turbine", created_by_user_id=1),
+    ]
+    db_session.add_all(devices)
 
     # Permanently save to DB
     db_session.commit()
