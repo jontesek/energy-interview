@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 
 from ..api.schemas.devices import DeviceCreate, DeviceUpdate
-from .models import Device, Site, SiteUser, UserRole
+from ..api.schemas.metrics import MetricValueResponse
+from .models import Device, Metric, MetricValue, Site, SiteUser, UserRole
 
 
 class Repository:
@@ -99,7 +100,34 @@ class Repository:
             self.db.delete(device)
         return device
 
+    # METRICS
+    def get_latest_metric_value(self, metric_id: int) -> MetricValueResponse | None:
+        metric = self.db.get(Metric, metric_id)
+        if metric is None:
+            raise EntityNotFoundError("Metric", metric_id)
+
+        latest_value = (
+            self.db.query(MetricValue)
+            .filter_by(metric_id=metric_id)
+            .order_by(MetricValue.measured_at.desc())
+            .first()
+        )
+        if latest_value is None:
+            return None
+
+        return MetricValueResponse(
+            name=metric.name,
+            unit=metric.unit,
+            value=latest_value.value,
+            measured_at=latest_value.measured_at,
+        )
+
 
 class UnauthorizedError(Exception):
     def __init__(self, site_id: int, user_id: int) -> None:
         super().__init__(f"User {user_id} cannot operate on site {site_id}.")
+
+
+class EntityNotFoundError(Exception):
+    def __init__(self, name: str, id: int) -> None:
+        super().__init__(f"Entity {name} with ID {id} not found.")
