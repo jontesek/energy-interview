@@ -1,0 +1,30 @@
+services:
+  app:
+    image: energy-manager
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/app  # mount local dir to docker
+      - /app/.venv  # isolate local venv from docker
+    command:
+      - "uv"
+      - "run"
+      - "uvicorn"
+      - "energy_manager.app:app"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8000"
+      # - "--reload"
+      # - "--reload-delay=1"
+      # - "--reload-dir=energy_manager"
+      # - "--no-access-log"
+    environment:
+      - ENVIRONMENT=local
+      # - WEB_CONCURRENCY=2
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+     
