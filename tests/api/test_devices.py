@@ -82,6 +82,20 @@ class TestDeviceUpdate:
         status_code = status.HTTP_404_NOT_FOUND
         self.__run_test_case(client, device_id, user_id, payload, status_code)
 
+    def test_missing_payload(self, client):
+        device_id = 1
+        user_id = 1
+        payload = {}
+        status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+        self.__run_test_case(client, device_id, user_id, payload, status_code)
+
+    def test_invalid_name_type(self, client):
+        device_id = 1
+        user_id = 1
+        payload = {"name": 5}
+        status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+        self.__run_test_case(client, device_id, user_id, payload, status_code)
+
 
 class TestDeviceDelete:
     def __run_test_case(self, client, device_id, user_id, status_code):
