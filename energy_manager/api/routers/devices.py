@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlalchemy.orm import Session
 
 from ...db.connection import get_db
-from ...db.repositories import Repository, UnauthorizedError
+from ...db.repositories import Repository
+from ...db.repository_errors import UnauthorizedError
 from ..schemas.devices import Device, DeviceCreate, DeviceCreateResponse, DeviceUpdate
 
 router = APIRouter(prefix="/devices", tags=["devices"])
