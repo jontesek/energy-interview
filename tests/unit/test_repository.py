@@ -1,6 +1,7 @@
 import pytest
 
-from energy_manager.db.repositories import Repository, UserRole
+from energy_manager.db.models import UserRole
+from energy_manager.db.repository import UserRepository
 
 
 @pytest.mark.parametrize(
@@ -15,5 +16,5 @@ from energy_manager.db.repositories import Repository, UserRole
     ],
 )
 def test_has_user_access(db_session, site_id, user_id, required_role, has_access):
-    repo = Repository(db_session, user_id)
+    repo = UserRepository(db_session, user_id)
     assert repo._has_user_access(site_id, required_role) == has_access

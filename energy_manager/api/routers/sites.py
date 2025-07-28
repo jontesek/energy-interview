@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlalchemy.orm import Session
 
 from ...db.connection import get_db
-from ...db.repositories import Repository
+from ...db.repository import SiteRepository
 from ...db.repository_errors import UnauthorizedError
 from ..schemas.devices import Device
 
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/sites", tags=["sites"])
 
 @router.get("/")
 def get_sites(user_id: int = Header(alias="X-User-ID"), db: Session = Depends(get_db)):
-    repo = Repository(db, user_id)
+    repo = SiteRepository(db, user_id)
     return repo.get_sites()
 
 
@@ -21,7 +21,7 @@ def get_site(
     user_id: int = Header(alias="X-User-ID"),
     db: Session = Depends(get_db),
 ):
-    repo = Repository(db, user_id)
+    repo = SiteRepository(db, user_id)
     try:
         return repo.get_site(site_id)
     except UnauthorizedError as e:
@@ -34,7 +34,7 @@ def get_site_devices(
     user_id: int = Header(alias="X-User-ID"),
     db: Session = Depends(get_db),
 ):
-    repo = Repository(db, user_id)
+    repo = SiteRepository(db, user_id)
     try:
         return repo.get_site_devices(site_id)
     except UnauthorizedError as e:

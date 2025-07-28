@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlalchemy.orm import Session
 
 from ...db.connection import get_db
-from ...db.repositories import Repository
+from ...db.repository import DeviceRepository
 from ...db.repository_errors import UnauthorizedError
 from ..schemas.devices import Device, DeviceCreate, DeviceCreateResponse, DeviceUpdate
 
@@ -15,7 +15,7 @@ def create_device(
     user_id: int = Header(alias="X-User-ID"),
     db: Session = Depends(get_db),
 ):
-    repo = Repository(db, user_id=user_id)
+    repo = DeviceRepository(db, user_id=user_id)
 
     try:
         device_id = repo.create_device(data)
@@ -32,7 +32,7 @@ def get_device(
     user_id: int = Header(alias="X-User-ID"),
     db: Session = Depends(get_db),
 ):
-    repo = Repository(db, user_id=user_id)
+    repo = DeviceRepository(db, user_id=user_id)
 
     try:
         device = repo.get_device(device_id)
@@ -52,7 +52,7 @@ def update_device(
     user_id: int = Header(alias="X-User-ID"),
     db: Session = Depends(get_db),
 ):
-    repo = Repository(db, user_id=user_id)
+    repo = DeviceRepository(db, user_id=user_id)
 
     try:
         device = repo.update_device(device_id, data)
@@ -72,7 +72,7 @@ def delete_device(
     user_id: int = Header(alias="X-User-ID"),
     db: Session = Depends(get_db),
 ):
-    repo = Repository(db, user_id=user_id)
+    repo = DeviceRepository(db, user_id=user_id)
 
     try:
         device = repo.delete_device(device_id)

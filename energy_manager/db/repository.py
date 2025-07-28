@@ -22,12 +22,19 @@ from .models import (
 from .repository_errors import EntityNotFoundError, UnauthorizedError
 
 
-class Repository:
-    def __init__(self, db: Session, user_id: int) -> None:
+# General
+class BaseRepository:
+    def __init__(self, db: Session) -> None:
         self.db = db
+
+
+class UserRepository(BaseRepository):
+    """Check user access rights in this repository type."""
+
+    def __init__(self, db: Session, user_id: int) -> None:
+        super().__init__(db)
         self.user_id = user_id
 
-    # SITES
     def _has_user_access(self, site_id: int, required_role: str) -> bool:
         user_access = (
             self.db.query(SiteUser)
@@ -48,6 +55,9 @@ class Repository:
         # User has higher role than required
         return True
 
+
+# Specific
+class SiteRepository(UserRepository):
     def get_site(self, site_id: int) -> Site | None:
         # Check access
         if not self._has_user_access(site_id, UserRole.BASIC):
@@ -65,7 +75,13 @@ class Repository:
         # Get data for allowed sites
         return self.db.query(Site).filter(Site.id.in_(allowed_sites)).all()
 
-    # DEVICES
+    def get_site_devices(self, site_id: int) -> list[Device] | None:
+        if not self._has_user_access(site_id, UserRole.BASIC):
+            raise UnauthorizedError(site_id, self.user_id)
+        return self.db.query(Device).filter_by(site_id=site_id).all()
+
+
+class DeviceRepository(UserRepository):
     def create_device(self, payload: DeviceCreate) -> int:
         if not self._has_user_access(payload.site_id, UserRole.TECH):
             raise UnauthorizedError(payload.site_id, self.user_id)
@@ -88,11 +104,6 @@ class Repository:
             raise UnauthorizedError(site_id, self.user_id)
         # Return data
         return device
-
-    def get_site_devices(self, site_id: int) -> list[Device] | None:
-        if not self._has_user_access(site_id, UserRole.BASIC):
-            raise UnauthorizedError(site_id, self.user_id)
-        return self.db.query(Device).filter_by(site_id=site_id).all()
 
     def update_device(self, device_id: int, payload: DeviceUpdate) -> Device | None:
         # Check access to device and get device site ID
@@ -117,7 +128,8 @@ class Repository:
             self.db.delete(device)
         return device
 
-    # METRICS
+
+class MetricRepository(BaseRepository):
     def get_latest_metric_value(self, metric_id: int) -> MetricValueResponse | None:
         metric = self.db.get(Metric, metric_id)
         if metric is None:
@@ -140,7 +152,7 @@ class Repository:
         )
 
     def create_subscription(
-        self, payload: SubscriptionCreate
+        self, payload: SubscriptionCreate, user_id: int
     ) -> SubscriptionCreateResponse:
         # Check if all supplied metrics exist
         metric_ids = payload.metric_ids
@@ -153,7 +165,7 @@ class Repository:
         subscription = Subscription(
             name=payload.name,
             description=payload.description,
-            created_by_user_id=self.user_id,
+            created_by_user_id=user_id,
         )
         self.db.add(subscription)
         self.db.flush()
