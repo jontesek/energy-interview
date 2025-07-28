@@ -30,6 +30,14 @@ When you commit, your code will be checked by linter and then formatted (by [ruf
 
 You can also run the hooks manually for all files with `pre-commit run --all-files`. 
 
+### Python version
+
+The Python version required by this project is specified in field `requires-python` in [pyproject.toml](./pyproject.toml).
+
+By default, the `uv` tool uses the `.python-version` file to determine which Python version to use when running `uv sync`.  If you remove this file, `uv` will use the latest Python version satisfying the `requires-python` constraint when creating the venv.
+
+That's exactly what we want. We don't need to support older Python versions via a looser `requires-python` value: This would be necessary only if the project were a library intended for use in other Python projects (with potentially different Python versions).
+
 ## Description
 
 I started with DB design and created SQLAlchemy models. Then I thought about API endpoints and started working with FastAPI to achieve the desired results.
